@@ -17,10 +17,10 @@ def readFile(file_name):
     return read_data
 
 
-def simulatePrincipalPolicy(source, actions, policies):
+def simulateCustomPolicy(source, actions, policies):
     iam_client = boto3.client("iam")
     response = iam_client.simulate_custom_policy(
-    policy=policies,
+    PolicyInputList=policies,
     ActionNames=actions,
     ResourceArns=source,
     # CallerArn="arn:aws:iam::226518205592:user/Jameel-Tools",
