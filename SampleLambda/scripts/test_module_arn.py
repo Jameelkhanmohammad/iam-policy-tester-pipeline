@@ -1,7 +1,12 @@
-from datetime import datetime
-
+import unittest
+import json
 import boto3
 import pprint
+class TestPolicies(unittest.TestCase):
+    def test_policy(self):
+        #policy = readFile("cli_policy.json")
+        #ActionNames = json.loads(readFile("actions.json"))
+        #source = readFile("source.txt")
 iam_client=boto3.client("iam")
 
 def readFile(file_name):
@@ -19,3 +24,5 @@ response=iam_client.simulate_custom_policy(
 
 )
 pprint.pprint(response)
+if __name__ == "__main__":
+    unittest.main()
