@@ -34,11 +34,12 @@ class TestStringMethods(unittest.TestCase):
 
     def test_dynamo(self):
         policy1 = read_file("dynamo_policy.json")
-        policy2 = read_file("admin_iam_policy.json")
+
         actions = json.loads(read_file("dynamo_actions.json"))
         resources = json.loads(read_file("dynamo_resources.json"))
         evaluation_results = self.iam_client.simulate_custom_policy(
-            PolicyInputList=[policy1,policy2],
+
+            PolicyInputList=[policy1],
             ActionNames=actions,
             ResourceArns=resources)
         pprint.pprint(evaluation_results)
@@ -46,8 +47,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(evaluation_results["EvaluationResults"][0]["EvalDecision"], "allowed", "Few actions not allowed")
         self.assertEqual(len(failed), 0, "Some actions were denied\n" + prettyPrintResults(failed))
 
-    def test_admin_policy(self):
-        policy = read_file("admin_iam_policy.json")
+    def test_dynamo_policy(self):
+        policy = read_file("dynamo_policy.json")
         actions = json.loads(read_file("dynamo_actions.json"))
         evaluation_results = self.iam_client.simulate_custom_policy(
             PolicyInputList=[policy],
