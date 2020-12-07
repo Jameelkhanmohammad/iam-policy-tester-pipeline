@@ -1,43 +1,17 @@
 import unittest
-import json
 import boto3
 import pprint
+import json
 
 
-class TestPolicies(unittest.TestCase):
-    def test_policy(self):
-        policy = readFile("cli_policy.json")
-        ActionNames = json.loads(readFile("actions.json"))
-        ResourceArns = readFile("resource.txt")
-
-
-def readFile(file_name):
+def read_file(file_name: str):
     with open(file_name, "r") as f:
         read_data = f.read()
     return read_data
 
 
-def simulateCustomPolicy(source, actions, policies):
-    iam_client = boto3.client("iam")
-    response = iam_client.simulate_custom_policy(
-    PolicyInputList=policies,
-    ActionNames=actions,
-    ResourceArns=source,
-    # CallerArn="arn:aws:iam::226518205592:user/Jameel-Tools",
-
-)
-    return response["EvaluationResults"]
-
-
 def isDenied(evaluationResults):
     return evaluationResults["EvalDecision"] != "allowed"
-
-
-def isDenied(evaluationResults):
-    return evaluationResults["EvalDecision"] != "allowed"
-
-
-#pprint.pprint(response)
 
 
 def prettyPrintResults(evaluationResults):
@@ -53,5 +27,35 @@ def prettyPrintResults(evaluationResults):
     return output
 
 
-if __name__ == "__main__":
+class TestStringMethods(unittest.TestCase):
+
+    def setUp(self):
+        self.iam_client = boto3.client("iam")
+
+    def test_dynamo(self):
+        policy1 = read_file("dynamo_policy.json")
+        policy2 = read_file("admin_iam_policy.json")
+        actions = json.loads(read_file("dynamo_actions.json"))
+        resources = json.loads(read_file("dynamo_resources.json"))
+        evaluation_results = self.iam_client.simulate_custom_policy(
+            PolicyInputList=[policy1,policy2],
+            ActionNames=actions,
+            ResourceArns=resources)
+        pprint.pprint(evaluation_results)
+        failed = [x for x in evaluation_results["EvaluationResults"] if isDenied(x)]
+        self.assertEqual(evaluation_results["EvaluationResults"][0]["EvalDecision"], "allowed", "Few actions not allowed")
+        self.assertEqual(len(failed), 0, "Some actions were denied\n" + prettyPrintResults(failed))
+
+    def test_admin_policy(self):
+        policy = read_file("admin_iam_policy.json")
+        actions = json.loads(read_file("dynamo_actions.json"))
+        evaluation_results = self.iam_client.simulate_custom_policy(
+            PolicyInputList=[policy],
+            ActionNames=actions)
+        pprint.pprint(evaluation_results)
+        failed = [x for x in evaluation_results["EvaluationResults"] if isDenied(x)]
+        self.assertLessEqual(len(failed), 0, "Some actions were denied\n" + prettyPrintResults(failed))
+
+
+if __name__ == '__main__':
     unittest.main()
