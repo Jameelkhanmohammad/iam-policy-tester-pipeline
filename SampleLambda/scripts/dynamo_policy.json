@@ -6,7 +6,7 @@
       "Action": [
         "iam:SimulateCustomPolicy"
       ],
-      "Resource": "arn:aws:iam::226518205592:role/sample-lambda-CodeBuildRole"
+      "Resource": "*"
     }
   ]
 }
