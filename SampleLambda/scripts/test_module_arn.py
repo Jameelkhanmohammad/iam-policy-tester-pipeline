@@ -33,13 +33,11 @@ class TestStringMethods(unittest.TestCase):
         self.iam_client = boto3.client("iam")
 
     def test_dynamo(self):
-        policy1 = read_file("dynamo_policy.json")
-
+        policy = read_file("dynamo_policy.json")
         actions = json.loads(read_file("dynamo_actions.json"))
         resources = json.loads(read_file("dynamo_resources.json"))
         evaluation_results = self.iam_client.simulate_custom_policy(
-
-            PolicyInputList=[policy1],
+            PolicyInputList=[policy],
             ActionNames=actions,
             ResourceArns=resources)
         pprint.pprint(evaluation_results)
